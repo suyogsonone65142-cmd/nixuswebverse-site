@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NixWebVerse</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #0a0a0a;
+    --black2: #111111;
+    --black3: #1a1a1a;
+    --red: #c8102e;
+    --red2: #e8102e;
+    --gold: #d4af37;
+    --gold2: #f0c84a;
+    --white: #f5f0e8;
+    --muted: #888;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-follower {
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.2s ease;
+    opacity: 0.5;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 4rem;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212,175,55,0.15);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 3px;
+    color: var(--white);
+  }
+  .logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: color 0.3s;
+    font-family: 'Syne', sans-serif;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 0.5rem 1.4rem;
+    font-size: 0.75rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .nav-cta:hover {
+    background: var(--gold);
+    color: var(--black);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 4rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22vw;
+    color: rgba(212,175,55,0.03);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: 10px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(200,16,46,0.1);
+    border: 1px solid rgba(200,16,46,0.3);
+    color: var(--red2);
+    font-size: 0.7rem;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    margin-bottom: 2rem;
+    width: fit-content;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--red2);
+    border-radius: 50%;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 8vw, 8rem);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    margin-bottom: 0.3rem;
+  }
+  .hero h1 .outline-text {
+    -webkit-text-stroke: 1px var(--gold);
+    color: transparent;
+  }
+  .hero h1 .gold-text { color: var(--gold); }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.7;
+    margin: 1.5rem 0 2.5rem;
+    font-weight: 300;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--red);
+    color: var(--white);
+    padding: 0.9rem 2.2rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    transition: all 0.3s;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover::after { transform: scaleX(1); }
+  .btn-primary:hover { background: #a50d26; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--white);
+    padding: 0.9rem 2.2rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+  }
+  .scroll-line {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    animation: scroll-pulse 2s infinite;
+  }
+  @keyframes scroll-pulse { 0%,100%{width:40px} 50%{width:20px} }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    border-top: 1px solid rgba(212,175,55,0.15);
+    border-bottom: 1px solid rgba(212,175,55,0.15);
+    background: var(--black2);
+    overflow: hidden;
+    padding: 1rem 0;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .marquee-item .dot {
+    width: 5px; height: 5px;
+    background: var(--gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* SECTION DEFAULTS */
+  section { padding: 7rem 4rem; }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  /* WHAT WE DO */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5px;
+    margin-top: 4rem;
+    border: 1.5px solid rgba(212,175,55,0.1);
+  }
+
+  .service-card {
+    background: var(--black2);
+    padding: 2.5rem 2rem;
+    border: 1.5px solid transparent;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-card:hover {
+    background: var(--black3);
+    border-color: rgba(212,175,55,0.15);
+  }
+
+  .service-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: rgba(212,175,55,0.1);
+    line-height: 1;
+    margin-bottom: 1rem;
+    transition: color 0.4s;
+  }
+  .service-card:hover .service-num { color: rgba(200,16,46,0.15); }
+
+  .service-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+    color: var(--white);
+  }
+
+  .service-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* WHY US */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-top: 4rem;
+  }
+
+  .why-left .big-statement {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+  .why-left .big-statement span { color: var(--gold); }
+
+  .why-points {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .why-point {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .why-icon {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(200,16,46,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--red2);
+    font-size: 0.75rem;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 1px;
+  }
+  .why-text h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--white);
+  }
+  .why-text p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* Stats */
+  .stats-wrap {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: rgba(212,175,55,0.1);
+  }
+  .stat-box {
+    background: var(--black2);
+    padding: 2rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* PROCESS */
+  .process-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    margin-top: 4rem;
+    position: relative;
+  }
+
+  .process-step {
+    padding: 2rem 1.5rem;
+    border-left: 1px solid rgba(212,175,55,0.1);
+    position: relative;
+  }
+  .process-step:first-child { border-left: none; }
+
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: rgba(212,175,55,0.06);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.5px;
+  }
+  .step-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .step-tag {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.65rem;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red2);
+    border: 1px solid rgba(200,16,46,0.3);
+    padding: 0.2rem 0.6rem;
+  }
+
+  /* CTA BAND */
+  .cta-band {
+    background: var(--red);
+    padding: 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-band::before {
+    content: 'LET'S BUILD';
+    position: absolute;
+    right: -2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 8rem;
+    color: rgba(0,0,0,0.12);
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 10px;
+  }
+  .cta-band h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    letter-spacing: 2px;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .cta-band p {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 380px;
+    margin-top: 0.5rem;
+    font-weight: 300;
+  }
+  .btn-cta-white {
+    background: var(--white);
+    color: var(--black);
+    padding: 1rem 2.5rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .btn-cta-white:hover {
+    background: var(--gold);
+    color: var(--black);
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--black2);
+    padding: 3rem 4rem;
+    border-top: 1px solid rgba(212,175,55,0.1);
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    color: var(--white);
+  }
+  .footer-logo span { color: var(--gold); }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 0.4rem;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .ig-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: 1px solid rgba(212,175,55,0.2);
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+    cursor: none;
+  }
+  .ig-link:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .ig-icon {
+    width: 18px; height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+
+  /* Noise overlay */
+  .noise {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Gold separator */
+  .gold-sep {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 4rem 0;
+    opacity: 0.2;
+  }
+  .gold-sep span { height: 1px; flex: 1; background: var(--gold); }
+  .gold-sep i { color: var(--gold); font-size: 0.5rem; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    section { padding: 4rem 1.5rem; }
+    .why-grid { grid-template-columns: 1fr; }
+    .cta-band { padding: 2.5rem 1.5rem; }
+    footer { padding: 2rem 1.5rem; }
+    .process-step { border-left: none; border-top: 1px solid rgba(212,175,55,0.1); }
+    .process-step:first-child { border-top: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="follower"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Nix<span>Web</span>Verse</div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="https://www.instagram.com/nixwebverse/?utm_source=ig_web_button_share_sheet" target="_blank" class="nav-cta">Follow Us</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">NIX</div>
+  <div class="hero-tag">Open for Projects</div>
+  <h1>
+    WE BUILD<br>
+    <span class="outline-text">DIGITAL</span><br>
+    <span class="gold-text">EXPERIENCES</span>
+  </h1>
+  <p class="hero-sub">
+    Websites that convert. Marketing that resonates. We're a new-era agency that treats every project like it's our name on the line — because it is.
+  </p>
+  <div class="hero-actions">
+    <a href="#contact" class="btn-primary">Start a Project</a>
+    <a href="#services" class="btn-ghost">See What We Do</a>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><span class="dot"></span> Web Design</div>
+    <div class="marquee-item"><span class="dot"></span> Digital Marketing</div>
+    <div class="marquee-item"><span class="dot"></span> Brand Strategy</div>
+    <div class="marquee-item"><span class="dot"></span> SEO & Growth</div>
+    <div class="marquee-item"><span class="dot"></span> UI/UX Design</div>
+    <div class="marquee-item"><span class="dot"></span> Social Media</div>
+    <div class="marquee-item"><span class="dot"></span> Web Design</div>
+    <div class="marquee-item"><span class="dot"></span> Digital Marketing</div>
+    <div class="marquee-item"><span class="dot"></span> Brand Strategy</div>
+    <div class="marquee-item"><span class="dot"></span> SEO & Growth</div>
+    <div class="marquee-item"><span class="dot"></span> UI/UX Design</div>
+    <div class="marquee-item"><span class="dot"></span> Social Media</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services" style="background: var(--black2);">
+  <div class="section-label">What We Do</div>
+  <div class="section-title">OUR CORE<br><span style="color:var(--gold)">CAPABILITIES</span></div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-num">01</div>
+      <div class="service-title">Web Design & Development</div>
+      <p class="service-desc">Custom-built websites engineered to perform. From landing pages to full-scale platforms — we code clean, design sharp, and ship fast.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">02</div>
+      <div class="service-title">Digital Marketing</div>
+      <p class="service-desc">Campaigns that actually move the needle. We understand audiences, craft messaging, and put your brand in front of the right eyes at the right time.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">03</div>
+      <div class="service-title">Brand Identity</div>
+      <p class="service-desc">Your brand is more than a logo. We build visual identities that have personality, consistency, and staying power across every touchpoint.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">04</div>
+      <div class="service-title">SEO & Content Strategy</div>
+      <p class="service-desc">Organic growth through smart content and technical SEO. We play the long game — because that's where sustainable visibility lives.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">05</div>
+      <div class="service-title">Social Media Management</div>
+      <p class="service-desc">Scroll-stopping content and community management that builds real connections — not just follower counts. Consistency is our baseline.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">06</div>
+      <div class="service-title">Strategy & Consulting</div>
+      <p class="service-desc">Before we build, we think. We audit your digital presence, identify gaps, and map a clear path forward — then execute it with precision.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="why-grid">
+    <div class="why-left">
+      <div class="section-label">Why NixWebVerse</div>
+      <div class="big-statement">FRESH PERSPECTIVE.<br><span>ZERO</span> LEGACY BAGGAGE.</div>
+      <div class="why-points">
+        <div class="why-point">
+          <div class="why-icon">01</div>
+          <div class="why-text">
+            <h4>Built Hungry, Not Comfortable</h4>
+            <p>We're not coasting on a reputation. Every project we take is something we're putting our name behind — and we treat it that way.</p>
+          </div>
+        </div>
+        <div class="why-point">
+          <div class="why-icon">02</div>
+          <div class="why-text">
+            <h4>Web + Marketing Under One Roof</h4>
+            <p>No handoffs between agencies. Design, development, and marketing teams that actually talk to each other means your brand stays coherent end-to-end.</p>
+          </div>
+        </div>
+        <div class="why-point">
+          <div class="why-icon">03</div>
+          <div class="why-text">
+            <h4>Gen-Z DNA, Professional Execution</h4>
+            <p>We understand modern audiences natively. We speak the language of today's internet — and we translate that into results for your business.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="why-right">
+      <div class="stats-wrap">
+        <div class="stat-box">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Client Focus</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">2X</div>
+          <div class="stat-label">Services in One Place</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Outsourced Work</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Ambition</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process" style="background: var(--black2);">
+  <div class="section-label">How We Work</div>
+  <div class="section-title">THE <span style="color:var(--red2)">PROCESS</span></div>
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-num">01</div>
+      <div class="step-title">Discovery Call</div>
+      <p class="step-desc">We sit down, listen hard, and learn exactly what you need — not what we assume you need. No templates, no assumptions.</p>
+      <div class="step-tag">Free</div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">02</div>
+      <div class="step-title">Strategy & Proposal</div>
+      <p class="step-desc">We map out the full scope — design direction, marketing angles, timeline, and deliverables. You approve before we move.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">03</div>
+      <div class="step-title">Design & Build</div>
+      <p class="step-desc">Where the work actually happens. You get regular updates, milestone reviews, and a feedback loop that's actually responsive.</p>
+    </div>
+    <div class="process-step">
+      <div class="step-num">04</div>
+      <div class="step-title">Launch & Grow</div>
+      <p class="step-desc">We don't drop you after launch. Marketing campaigns kick off, analytics are monitored, and we keep optimizing post-delivery.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band" id="contact">
+  <div>
+    <h2>READY TO BUILD<br>SOMETHING REAL?</h2>
+    <p>You bring the vision. We bring the skills to make it exist on the internet and actually get noticed.</p>
+  </div>
+  <a href="https://www.instagram.com/nixwebverse/?utm_source=ig_web_button_share_sheet" target="_blank" class="btn-cta-white">DM Us on Instagram</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">Nix<span>Web</span>Verse</div>
+      <div class="footer-copy">© 2025 NixWebVerse — All rights reserved</div>
+    </div>
+    <a href="https://www.instagram.com/nixwebverse/?utm_source=ig_web_button_share_sheet" target="_blank" class="ig-link">
+      <svg class="ig-icon" viewBox="0 0 24 24">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      </svg>
+      @nixwebverse
+    </a>
+  </div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const follower = document.getElementById('follower');
+  let mx = 0, my = 0, fx = 0, fy = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+  });
+
+  function animFollower() {
+    fx += (mx - fx - 18) * 0.12;
+    fy += (my - fy - 18) * 0.12;
+    follower.style.transform = `translate(${fx}px, ${fy}px)`;
+    requestAnimationFrame(animFollower);
+  }
+  animFollower();
+
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform += ' scale(2)';
+      follower.style.opacity = '0.2';
+    });
+    el.addEventListener('mouseleave', () => {
+      follower.style.opacity = '0.5';
+    });
+  });
+</script>
+</body>
+</html>
